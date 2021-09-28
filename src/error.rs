@@ -26,7 +26,7 @@ impl error::ResponseError for ApiError {
             ApiError::NotFound => StatusCode::NOT_FOUND,
             ApiError::Duplicate => StatusCode::CONFLICT,
             ApiError::PermissionDenied => StatusCode::FORBIDDEN,
-            _ => StatusCode::BAD_REQUEST
+            _ => StatusCode::BAD_REQUEST,
         }
     }
     fn error_response(&self) -> HttpResponse {
@@ -51,7 +51,7 @@ impl From<sqlx::Error> for ApiError {
                 if let Some(code) = db_error.code() {
                     match code.as_ref() {
                         "23505" => ApiError::Duplicate,
-                        _ => ApiError::InvalidRequest
+                        _ => ApiError::InvalidRequest,
                     }
                 } else {
                     ApiError::InvalidRequest

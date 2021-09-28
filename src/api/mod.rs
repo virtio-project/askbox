@@ -13,10 +13,10 @@ pub async fn post_ask(pool: web::Data<DbPool>, req: web::Json<Ask>) -> Result<Ht
     Ok(HttpResponse::Ok().json(ask))
 }
 
-#[get("/ask/{id}")]
-pub async fn get_ask(pool: web::Data<DbPool>, id: web::Path<i32>) -> Result<HttpResponse> {
-    let ask = Ask::load(&**pool, *id).await?;
-    Ok(HttpResponse::Ok().json(ask))
+#[get("/askee")]
+pub async fn get_all_askee(pool: web::Data<DbPool>) -> Result<HttpResponse> {
+    let askees = Askee::fetch_all(&**pool).await?;
+    Ok(HttpResponse::Ok().json(askees))
 }
 
 #[get("/askee/{id}")]
