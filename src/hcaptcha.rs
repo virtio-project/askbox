@@ -1,5 +1,5 @@
 use std::future::Future;
-use std::net::SocketAddr;
+use std::net::{SocketAddr, IpAddr};
 use std::pin::Pin;
 use std::str::FromStr;
 
@@ -34,13 +34,17 @@ impl Hcaptcha {
             .ok_or(HcaptchaError::Missing)?;
         let connection_info = req.connection_info();
         let real_ip = connection_info.realip_remote_addr().unwrap();
-        let user_ip = SocketAddr::from_str(real_ip)
-            .map(|sa| sa.ip())
+        let user_ip =  if real_ip.contains(':') {
+            SocketAddr::from_str(real_ip)
+                .map(|sa| sa.ip())
+        } else {
+            IpAddr::from_str(real_ip)
+        }
             .map_err(|e| {
                 error!("{}", e);
                 HcaptchaError::InsufficientInformation
             })?;
-        info!("{}", user_ip);
+        info!("real_ip:{}, parsed: {}", real_ip, user_ip);
         let config = req.app_data::<Data<crate::config::HCaptcha>>().unwrap();
         let captcha = HcaptchaCaptcha::new(response)?;
         let hc = HcaptchaRequest::new(config.secret.as_str(), captcha)?
