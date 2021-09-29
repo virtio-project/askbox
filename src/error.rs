@@ -1,5 +1,6 @@
 use actix_web::{error, http::StatusCode, HttpResponse, HttpResponseBuilder};
 use serde::{Deserialize, Serialize};
+use crate::hcaptcha::HcaptchaError;
 
 pub type Result<T, E = ApiError> = std::result::Result<T, E>;
 
@@ -13,6 +14,8 @@ pub enum ApiError {
     Duplicate,
     #[error("permission is not sufficient to execute request")]
     PermissionDenied,
+    #[error("captcha challenge failed, {0}")]
+    ChallengeFailure(#[from] HcaptchaError),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -26,6 +29,7 @@ impl error::ResponseError for ApiError {
             ApiError::NotFound => StatusCode::NOT_FOUND,
             ApiError::Duplicate => StatusCode::CONFLICT,
             ApiError::PermissionDenied => StatusCode::FORBIDDEN,
+            ApiError::ChallengeFailure(_) => StatusCode::FORBIDDEN,
             _ => StatusCode::BAD_REQUEST,
         }
     }

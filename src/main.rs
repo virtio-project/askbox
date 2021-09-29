@@ -1,15 +1,22 @@
-use actix_web::{error, middleware::*, web, App, HttpResponse, HttpServer, http};
+use actix_web::{error, middleware::*, web, App, HttpResponse, HttpServer};
 use askbox::api::{admin::*, *};
 use sqlx::postgres::PgPoolOptions;
 use actix_cors::Cors;
+use askbox::config::Config;
+use std::borrow::Borrow;
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
     pretty_env_logger::init();
 
-    let pool = PgPoolOptions::default()
-        .connect("postgres://askbox:askbox@localhost/askbox")
+    let config = Config::default();
+
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect_with(config.database.borrow().into())
         .await?;
+
+    let config_cloned = config.clone();
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -31,6 +38,7 @@ async fn main() -> anyhow::Result<()> {
             }))
             .wrap(Logger::default())
             .app_data(web::Data::new(pool.clone()))
+            .app_data(web::Data::new(config_cloned.hcaptcha.clone()))
             .service(
                 web::scope("/api")
                     .service(get_askee)

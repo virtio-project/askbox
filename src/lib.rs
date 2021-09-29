@@ -6,3 +6,5 @@ pub mod defense;
 pub mod error;
 pub mod models;
 pub mod types;
+pub mod hcaptcha;
+pub mod config;

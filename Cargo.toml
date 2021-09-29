@@ -9,6 +9,7 @@ actix-cors = "0.6.0-beta.2"
 actix-web = "4.0.0-beta.9"
 anyhow = "1.0.44"
 chrono = { version = "0.4" }
+hcaptcha = "2.0.0"
 log = "0.4.14"
 parking_lot = "0.11.2"
 pretty_env_logger = "0.4.0"
@@ -17,7 +18,9 @@ serde_json = "1.0"
 sqlx = { version = "0.5", features = [ "chrono", "migrate", "runtime-tokio-rustls" ] }
 thiserror = "1.0.29"
 tokio = "1.12.0"
+toml = "0.5.8"
 
 [features]
 default = ["postgres"]
+bypass-hcaptcha = []
 postgres = ["sqlx/postgres"]
