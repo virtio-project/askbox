@@ -1,6 +1,7 @@
-use actix_web::{error, middleware::*, web, App, HttpResponse, HttpServer};
+use actix_web::{error, middleware::*, web, App, HttpResponse, HttpServer, http};
 use askbox::api::{admin::*, *};
 use sqlx::postgres::PgPoolOptions;
+use actix_cors::Cors;
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
@@ -11,7 +12,14 @@ async fn main() -> anyhow::Result<()> {
         .await?;
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_methods(vec!["GET", "POST"])
+            .allow_any_header()
+            .max_age(10);
+
         App::new()
+            .wrap(cors)
             .app_data(web::JsonConfig::default().error_handler(|err, _req| {
                 error::InternalError::from_response(
                     "",
@@ -36,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
                     ),
             )
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("::", 8080))?
     .run()
     .await?;
     Ok(())
