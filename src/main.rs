@@ -1,4 +1,4 @@
-use actix_web::{error, middleware::*, web, App, HttpResponse, HttpServer};
+use actix_web::{error, middleware::*, web, App, HttpResponse, HttpServer, guard};
 use askbox::api::{admin::*, *};
 use sqlx::postgres::PgPoolOptions;
 use actix_cors::Cors;
@@ -17,6 +17,7 @@ async fn main() -> anyhow::Result<()> {
         .await?;
 
     let config_cloned = config.clone();
+    let admin_token = Box::leak(config.host.admin_token.into_boxed_str()) as &str;
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -46,6 +47,7 @@ async fn main() -> anyhow::Result<()> {
                     .service(post_ask)
                     .service(
                         web::scope("/admin")
+                            .guard(guard::Header("X-TOKEN", admin_token))
                             .service(reload)
                             .service(get_ask)
                             .service(add_askee),

@@ -14,6 +14,8 @@ pub struct Host {
     #[serde(default = "default_bind")]
     pub bind: String,
     pub hostname: String,
+    #[serde(rename = "admin-token")]
+    pub admin_token: String,
 }
 
 
