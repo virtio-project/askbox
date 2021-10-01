@@ -14,6 +14,7 @@ pub struct Askee {
 }
 
 #[derive(Clone, Debug, sqlx::FromRow, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Ask {
     #[serde(default = "default_id")]
     pub id: i32,
